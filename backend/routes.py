@@ -35,7 +35,10 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    if data:
+        return data, 200
+
+    return {"message": "Internal server error"}, 500
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +47,10 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    for x in data:
+        if x.get("id") == id:
+            return x,200
+    return {"message": "resource not found"}, 404
 
 
 ######################################################################
@@ -52,7 +58,13 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    request_data = json.loads(request.data)
+    for x in data:
+        if x.get("id") == request_data.get("id"):
+            return {"Message": "picture with id {} already present".format(request_data.get("id"))},302
+    data.append(request_data)
+    return request_data, 201
+
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +73,21 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    request_data = json.loads(request.data)
+    for x in range(len(data)):
+        if data[x].get("id") == request_data.get("id"):
+            data[x] = request_data
+            return {"Message": "picture with id {} update sucess".format(request_data.get("id"))},200
+    return {"message": "resource not found"}, 404
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    for x in range(len(data)):
+        if data[x].get("id") == id:
+            del data[x]
+            return {"Message": "picture with id {} delete sucess".format(id)},204
+    return {"message": "resource not found"}, 404
+
